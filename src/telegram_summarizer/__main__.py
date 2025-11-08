@@ -15,6 +15,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Configure Ollama client
+ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+ollama_client = ollama.Client(host=ollama_host)
+logger.info(f"Using Ollama host: {ollama_host}")
+
 # Load Whisper model (using base model for balance of speed/accuracy)
 logger.info("Loading Whisper model...")
 whisper_model = whisper.load_model("base")
@@ -80,7 +85,7 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 Resumo:"""
 
-            response = ollama.generate(
+            response = ollama_client.generate(
                 model='llama3.2:1b',  # Using smaller model for speed
                 prompt=prompt
             )

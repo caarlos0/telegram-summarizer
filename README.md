@@ -46,6 +46,8 @@ A Telegram bot that automatically transcribes and summarizes voice messages long
 3. **Set environment variable:**
    ```bash
    export TELEGRAM_BOT_TOKEN="your-token-here"
+   # Optional: Set custom Ollama host (defaults to http://localhost:11434)
+   export OLLAMA_HOST="http://localhost:11434"
    ```
 
 4. **Add bot to group:**
@@ -71,7 +73,11 @@ The bot will:
 
 ## Configuration
 
-Edit `src/telegram_summarizer/__main__.py` to customize:
+**Environment variables:**
+- `TELEGRAM_BOT_TOKEN` - Your bot token (required)
+- `OLLAMA_HOST` - Ollama server URL (optional, defaults to `http://localhost:11434`)
+
+**Code customization** - Edit `src/telegram_summarizer/__main__.py`:
 - `whisper.load_model("base")` - Change to `tiny`, `small`, `medium`, or `large`
 - `llama3.2:1b` - Use different Ollama models (e.g., `llama3.2:3b` for better quality)
 - `voice.duration <= 10` - Change minimum duration threshold
