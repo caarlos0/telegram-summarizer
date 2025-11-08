@@ -41,7 +41,7 @@ dockers_v2:
       org.opencontainers.image.name: "{{.ProjectName}}"
       org.opencontainers.image.revision: "{{.FullCommit}}"
       org.opencontainers.image.version: "{{.Version}}"
-      org.opencontainers.image.source: "{{.GitURL}}"
+      org.opencontainers.image.source: "https://github.com/caarlos0/telegram-summarizer"
       org.opencontainers.image.description: "Summarizes audio messages on telegram groups"
     annotations:
       "org.opencontainers.image.description": "Summarizes audio messages on telegram groups"
