@@ -1,4 +1,5 @@
 FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 ARG TARGETPLATFORM
 COPY $TARGETPLATFORM/telegram_summarizer*.whl /tmp/
 RUN ls /tmp/
