@@ -36,3 +36,12 @@ dockers_v2:
       - ghcr.io/caarlos0/telegram-summarizer
     platforms:
       - linux/amd64
+    labels:
+      org.opencontainers.image.created: "{{.Date}}"
+      org.opencontainers.image.name: "{{.ProjectName}}"
+      org.opencontainers.image.revision: "{{.FullCommit}}"
+      org.opencontainers.image.version: "{{.Version}}"
+      org.opencontainers.image.source: "{{.GitURL}}"
+      org.opencontainers.image.description: "Summarizes audio messages on telegram groups"
+    annotations:
+      "org.opencontainers.image.description": "Summarizes audio messages on telegram groups"
