@@ -82,7 +82,7 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             transcription = result["text"].strip()
 
             if not transcription:
-                await status_msg.edit_text("⚠️ Não foi possível transcrever o áudio")
+                logger.info("Empty transcription, ignoring")
                 return
 
             logger.info(f"Transcription: {transcription}")
@@ -123,7 +123,6 @@ Ideia central (ou "Sem conteúdo relevante"):"""
 
     except Exception as e:
         logger.error(f"Error processing voice message: {e}", exc_info=True)
-        await status_msg.edit_text(f"❌ Erro ao processar áudio: {str(e)}")
 
 
 def main() -> None:
