@@ -117,8 +117,13 @@ Ideia central (ou "Sem conteúdo relevante"):"""
             )
             core_idea = response["response"].strip()
 
-            # Format and send response
-            await status_msg.edit_text(f"💡 {core_idea}")
+            # Only reply if there's relevant content
+            if "sem conteúdo relevante" in core_idea.lower():
+                logger.info("No relevant content found, not replying")
+                return
+
+            # Reply to original voice message
+            await update.message.reply_text(f"💡 {core_idea}")
             logger.info(f"Core idea sent: {core_idea}")
 
     except Exception as e:
