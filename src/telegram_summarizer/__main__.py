@@ -122,8 +122,11 @@ Ideia central (ou "Sem conteúdo relevante"):"""
                 logger.info("No relevant content found, not replying")
                 return
 
-            # Reply to original voice message
-            await update.message.reply_text(f"💡 {core_idea}")
+            # Reply to original voice message (creates threaded reply)
+            await update.message.reply_text(
+                f"💡 {core_idea}",
+                reply_to_message_id=update.message.message_id
+            )
             logger.info(f"Core idea sent: {core_idea}")
 
     except Exception as e:
