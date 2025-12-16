@@ -57,20 +57,31 @@ A Telegram bot that automatically transcribes and summarizes voice messages long
 
 ## Usage
 
-Run the bot:
+### Running locally:
 ```bash
 telegram-summarizer
 # or
 python -m telegram_summarizer
 ```
 
+### Running with Docker:
+```bash
+docker run -d \
+  -e TELEGRAM_BOT_TOKEN=your-token \
+  -e OLLAMA_HOST=http://host.docker.internal:11434 \
+  -v whisper-cache:/data/.cache \
+  ghcr.io/caarlos0/telegram-summarizer:latest
+```
+
+The `-v whisper-cache:/data/.cache` volume persists the ~3GB Whisper model between restarts.
+
 The bot will:
 1. Listen for voice messages in groups
 2. Ignore messages <= 10 seconds
 3. For longer messages:
-   - Download and transcribe the audio
-   - Generate a concise summary
-   - Reply with both summary and full transcription
+   - React with 🙉 while processing
+   - Transcribe and extract core idea
+   - Reply only if relevant content found
 
 ## Configuration
 
