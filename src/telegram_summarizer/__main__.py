@@ -10,8 +10,7 @@ import ollama
 from pydub import AudioSegment
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
@@ -20,9 +19,9 @@ ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 ollama_client = ollama.Client(host=ollama_host)
 logger.info(f"Using Ollama host: {ollama_host}")
 
-# Load Whisper model (using base model for balance of speed/accuracy)
+# Load Whisper model (using large-v3 for better Portuguese accuracy)
 logger.info("Loading Whisper model...")
-whisper_model = whisper.load_model("base")
+whisper_model = whisper.load_model("large-v3")
 logger.info("Whisper model loaded")
 
 
@@ -32,10 +31,12 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         voice = update.message.voice
         chat = update.message.chat
         user = update.message.from_user
-        
+
         # Log for debugging
-        logger.info(f"Voice message in {chat.type} chat (ID: {chat.id}, Title: {chat.title}), "
-                   f"from {user.username or user.first_name}, duration: {voice.duration}s")
+        logger.info(
+            f"Voice message in {chat.type} chat (ID: {chat.id}, Title: {chat.title}), "
+            f"from {user.username or user.first_name}, duration: {voice.duration}s"
+        )
 
         # Check if voice message is longer than 10 seconds
         if voice.duration <= 10:
@@ -68,7 +69,16 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
             # Transcribe with Whisper
             logger.info("Transcribing audio...")
-            result = whisper_model.transcribe(str(wav_path), language="pt")
+            result = whisper_model.transcribe(
+                str(wav_path),
+                language="pt",
+                task="transcribe",
+                temperature=0.0,  # More deterministic
+                condition_on_previous_text=True,  # Better context
+                compression_ratio_threshold=2.4,
+                logprob_threshold=-1.0,
+                no_speech_threshold=0.6,
+            )
             transcription = result["text"].strip()
 
             if not transcription:
@@ -79,17 +89,31 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
             # Summarize with local LLM
             logger.info("Generating summary...")
-            prompt = f"""Resuma a seguinte transcrição de mensagem de voz de forma concisa em 2-3 frases:
+            prompt = f"""Você é um assistente que resume transcrições de áudio com precisão.
 
+REGRAS IMPORTANTES:
+1. Baseie-se APENAS no conteúdo fornecido abaixo
+2. NÃO invente, adicione ou presuma informações que não estejam explícitas
+3. Se o áudio for confuso ou inaudível, diga isso claramente
+4. Mantenha o resumo objetivo e factual
+5. Use no máximo 2-3 frases
+6. Se não for possivel extrair informações que façam sentido, apenas diga que não foi possivel resumir
+
+Transcrição:
 {transcription}
 
-Resumo:"""
+Resumo conciso e factual (sem inventar informações):"""
 
             response = ollama_client.generate(
-                model='llama3.2:1b',  # Using smaller model for speed
-                prompt=prompt
+                model="llama3.2:3b",  # Using larger model for better accuracy
+                prompt=prompt,
+                options={
+                    "temperature": 0.3,  # Lower temperature for more focused output
+                    "top_p": 0.9,
+                    "top_k": 40,
+                },
             )
-            summary = response['response'].strip()
+            summary = response["response"].strip()
 
             # Format and send response
             await status_msg.edit_text(f"📝 {summary}")
@@ -110,7 +134,9 @@ def main() -> None:
     application = Application.builder().token(token).build()
 
     # Add voice message handler
-    application.add_handler(MessageHandler(filters.VOICE & (~filters.COMMAND), handle_voice))
+    application.add_handler(
+        MessageHandler(filters.VOICE & (~filters.COMMAND), handle_voice)
+    )
 
     logger.info("Bot started, listening for voice messages...")
     logger.info("Make sure Group Privacy is DISABLED in @BotFather with /setprivacy")
