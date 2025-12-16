@@ -44,9 +44,9 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             return
 
         logger.info(f"Processing voice message ({voice.duration}s)")
-
-        # Send a "processing" message
-        status_msg = await update.message.reply_text("🎤 Transcrevendo e resumindo...")
+        
+        # React to message while processing
+        await update.message.set_reaction("🙉")
     except Exception as e:
         logger.error(f"Error in initial setup: {e}", exc_info=True)
         return
