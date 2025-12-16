@@ -85,24 +85,25 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 await status_msg.edit_text("⚠️ Não foi possível transcrever o áudio")
                 return
 
-            logger.info(f"Transcription: {transcription[:100]}...")
+            logger.info(f"Transcription: {transcription}")
 
-            # Summarize with local LLM
-            logger.info("Generating summary...")
-            prompt = f"""Você é um assistente que resume transcrições de áudio com precisão.
+            # Extract core idea with local LLM
+            logger.info("Extracting core idea...")
+            prompt = f"""Você é um assistente que extrai a ideia central de transcrições de áudio.
 
 REGRAS IMPORTANTES:
-1. Baseie-se APENAS no conteúdo fornecido abaixo
-2. NÃO invente, adicione ou presuma informações que não estejam explícitas
-3. Se o áudio for confuso ou inaudível, diga isso claramente
-4. Mantenha o resumo objetivo e factual
-5. Use no máximo 2-3 frases
-6. Se não for possivel extrair informações que façam sentido, apenas diga que não foi possivel resumir
+1. Extraia APENAS a informação ou ideia mais importante e relevante
+2. IGNORE: reclamações vagas, divagações, enchimento de linguiça, conversas casuais sem conteúdo
+3. Se houver uma pergunta, decisão, pedido, anúncio ou informação concreta: extraia isso
+4. Se for apenas conversa vaga sem conteúdo relevante: responda "Sem conteúdo relevante"
+5. Baseie-se APENAS no que foi dito, não invente nada
+6. Use no máximo 1-2 frases diretas
+7. Seja objetivo e factual
 
 Transcrição:
 {transcription}
 
-Resumo conciso e factual (sem inventar informações):"""
+Ideia central (ou "Sem conteúdo relevante"):"""
 
             response = ollama_client.generate(
                 model="llama3.1:8b",  # Larger model for better accuracy and comprehension
@@ -114,11 +115,11 @@ Resumo conciso e factual (sem inventar informações):"""
                     "repeat_penalty": 1.1,  # Slight penalty for repetition
                 },
             )
-            summary = response["response"].strip()
+            core_idea = response["response"].strip()
 
             # Format and send response
-            await status_msg.edit_text(f"📝 {summary}")
-            logger.info("Summary sent successfully")
+            await status_msg.edit_text(f"💡 {core_idea}")
+            logger.info(f"Core idea sent: {core_idea}")
 
     except Exception as e:
         logger.error(f"Error processing voice message: {e}", exc_info=True)
