@@ -4,10 +4,11 @@ A Telegram bot that automatically transcribes and summarizes voice messages long
 
 ## Features
 
-- 🎤 Transcribes voice messages using OpenAI Whisper (local)
-- 📝 Summarizes transcriptions using Ollama with llama3.2:1b
+- 🎤 Transcribes voice messages using OpenAI Whisper large-v3 (optimized for Portuguese)
+- 📝 Summarizes transcriptions using Ollama with llama3.1:8b (strict factual mode)
 - ⚡ Processes voice messages > 10 seconds automatically
 - 🔒 All processing done locally (no external APIs)
+- 🇧🇷 Excellent Portuguese language support
 
 ## Prerequisites
 
@@ -22,7 +23,7 @@ A Telegram bot that automatically transcribes and summarizes voice messages long
    ollama serve
    
    # Pull the model (in another terminal)
-   ollama pull llama3.2:1b
+   ollama pull llama3.1:8b
    ```
 
 4. **FFmpeg** - For audio conversion
@@ -78,18 +79,22 @@ The bot will:
 - `OLLAMA_HOST` - Ollama server URL (optional, defaults to `http://localhost:11434`)
 
 **Code customization** - Edit `src/telegram_summarizer/__main__.py`:
-- `whisper.load_model("base")` - Change to `tiny`, `small`, `medium`, or `large`
-- `llama3.2:1b` - Use different Ollama models (e.g., `llama3.2:3b` for better quality)
+- `whisper.load_model("large-v3")` - Current: best quality for Portuguese. Can change to `medium`, `small`, or `base` for faster processing
+- `llama3.1:8b` - Current model. Can use `llama3.2:3b` (faster) or `llama3.2:1b` (even faster but less reliable)
 - `voice.duration <= 10` - Change minimum duration threshold
 
 ## Models
 
-- **Whisper base**: ~140MB, good balance of speed/accuracy
-- **llama3.2:1b**: ~1.3GB, fast inference for summaries
+**Current configuration (optimized for Portuguese accuracy):**
+- **Whisper large-v3**: ~3GB, best quality especially for Portuguese
+- **llama3.1:8b**: ~4.7GB, excellent accuracy with strict factual prompting
 
-For better quality, use larger models (at cost of speed):
-- Whisper: `small` or `medium`
-- Ollama: `llama3.2:3b` or `llama3.1:8b`
+**Alternative models (faster but less accurate):**
+- Whisper: `medium` (~1.5GB), `small` (~500MB), `base` (~140MB)
+- Ollama: `llama3.2:3b` (~2GB), `llama3.2:1b` (~1.3GB)
+
+**For even better quality:**
+- Ollama: `llama3.1:70b` (~40GB) if you have powerful hardware
 
 ## License
 

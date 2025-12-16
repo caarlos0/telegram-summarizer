@@ -105,12 +105,13 @@ Transcrição:
 Resumo conciso e factual (sem inventar informações):"""
 
             response = ollama_client.generate(
-                model="llama3.2:3b",  # Using larger model for better accuracy
+                model="llama3.1:8b",  # Larger model for better accuracy and comprehension
                 prompt=prompt,
                 options={
-                    "temperature": 0.3,  # Lower temperature for more focused output
-                    "top_p": 0.9,
-                    "top_k": 40,
+                    "temperature": 0.0,  # No creativity - purely deterministic
+                    "top_p": 0.1,  # Very focused sampling
+                    "top_k": 10,  # Consider only top 10 tokens
+                    "repeat_penalty": 1.1,  # Slight penalty for repetition
                 },
             )
             summary = response["response"].strip()
